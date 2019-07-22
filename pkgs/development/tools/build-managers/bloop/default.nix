@@ -65,7 +65,7 @@ stdenv.mkDerivation rec {
 
     makeWrapper ${jre}/bin/java $out/bin/blp-server \
       --prefix PATH : ${lib.makeBinPath [ jdk ]} \
-      --add-flags "-cp $CLASSPATH bloop.Server"
+      --add-flags "-cp $CLASSPATH \$JAVA_OPTS bloop.Server"
     makeWrapper ${client} $out/bin/bloop \
       --prefix PATH : ${lib.makeBinPath [ python ]}
   '';
