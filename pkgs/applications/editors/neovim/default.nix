@@ -2,6 +2,7 @@
 , libuv, lua, ncurses, pkg-config
 , unibilium, xsel, gperf
 , libvterm-neovim
+, tree-sitter
 , glibcLocales ? null, procps ? null
 
 # now defaults to false because some tests can be flaky (clipboard etc)
@@ -31,13 +32,13 @@ let
 in
   stdenv.mkDerivation rec {
     pname = "neovim-unwrapped";
-    version = "0.4.4";
+    version = "unstable-0.5.0";
 
     src = fetchFromGitHub {
       owner = "neovim";
       repo = "neovim";
-      rev = "v${version}";
-      sha256 = "11zyj6jvkwas3n6w1ckj3pk6jf81z1g7ngg4smmwm7c27y2a6f2m";
+      rev = "d19348923e01bdc729fcb513327dd386be1be98e";
+      sha256 = "16qjljqbjyh57h1yygizqwyp8xd8br6zd0mkzbsk6367k9q2vxjn";
     };
 
     patches = [
@@ -96,6 +97,8 @@ in
       "-DGPERF_PRG=${gperf}/bin/gperf"
       "-DLUA_PRG=${neovimLuaEnv.interpreter}"
       "-DLIBLUV_LIBRARY=${luvpath}"
+      "-DTreeSitter_INCLUDE_DIR=${tree-sitter}/include"
+      "-DTreeSitter_LIBRARY=${tree-sitter}/lib/libtree-sitter.so"
     ]
     ++ optional doCheck "-DBUSTED_PRG=${neovimLuaEnv}/bin/busted"
     ++ optional (!lua.pkgs.isLuaJIT) "-DPREFER_LUA=ON"
