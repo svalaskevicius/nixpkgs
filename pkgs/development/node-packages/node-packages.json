@@ -186,7 +186,7 @@
 , "react-native-cli"
 , "react-tools"
 , "readability-cli"
-, "redoc-cli"
+, {"redoc-cli": "0.10.1"}
 , "reveal.js"
 , "rollup"
 , { "rust-analyzer-build-deps": "../../misc/vscode-extensions/rust-analyzer/build-deps" }

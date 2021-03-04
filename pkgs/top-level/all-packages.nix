@@ -7585,7 +7585,7 @@ in
 
   recoll = libsForQt5.callPackage ../applications/search/recoll { };
 
-  redoc-cli = nodePackages.redoc-cli;
+  redoc-cli = nodePackages."redoc-cli-0.10.1";
 
   reflex = callPackage ../development/tools/reflex { };
 
