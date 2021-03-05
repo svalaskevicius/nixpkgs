@@ -21,16 +21,18 @@ in
 
 stdenv.mkDerivation rec {
   pname = "tmux";
-  version = "3.1c";
+  version = "3.3-HEAD";
 
   outputs = [ "out" "man" ];
 
   src = fetchFromGitHub {
     owner = "tmux";
     repo = "tmux";
-    rev = version;
-    sha256 = "1fqgpzfas85dn0sxlvvg6rj488jwgnxs8d3gqcm8lgs211m9qhcf";
+    rev = "de4ac37baa2d32c3a3597be39eeac953c6159f77";
+    sha256 = "0zvy035ji89dhgyw09i07x113yin1jqq1hq9jfhkcgg7y46bakhi";
   };
+
+  patches = [ ./malloc-improvements.patch ];
 
   nativeBuildInputs = [
     pkg-config

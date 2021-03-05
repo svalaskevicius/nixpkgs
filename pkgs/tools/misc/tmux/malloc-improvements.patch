@@ -1,0 +1,70 @@
+diff --git a/grid.c b/grid.c
+index 1822f2b5..7744587a 100644
+--- a/grid.c
++++ b/grid.c
+@@ -265,9 +265,6 @@ grid_free_lines(struct grid *gd, u_int py, u_int ny)
+ 
+ 	for (yy = py; yy < py + ny; yy++)
+ 		grid_free_line(gd, yy);
+-#ifdef HAVE_MALLOC_TRIM
+-	malloc_trim(0);
+-#endif
+ }
+ 
+ /* Create a new grid. */
+diff --git a/server.c b/server.c
+index 0260898c..2a2f95d5 100644
+--- a/server.c
++++ b/server.c
+@@ -46,6 +46,7 @@ static int		 server_fd = -1;
+ static uint64_t		 server_client_flags;
+ static int		 server_exit;
+ static struct event	 server_ev_accept;
++static struct event	 server_ev_tidy;
+ 
+ struct cmd_find_state	 marked_pane;
+ 
+@@ -149,6 +150,23 @@ fail:
+ 	return (-1);
+ }
+ 
++/* Tidy up every hour. */
++static void
++server_tidy_event(__unused int fd, __unused short events, __unused void *data)
++{
++    struct timeval	 tv = { .tv_sec = 3600 };
++    uint64_t		 t;
++
++    t = get_timer();
++
++#ifdef HAVE_MALLOC_TRIM
++    malloc_trim(0);
++#endif
++
++    log_debug("%s: took %llu milliseconds", __func__, get_timer() - t);
++    evtimer_add(&server_ev_tidy, &tv);
++}
++
+ /* Fork new server. */
+ int
+ server_start(struct tmuxproc *client, int flags, struct event_base *base,
+@@ -158,6 +176,7 @@ server_start(struct tmuxproc *client, int flags, struct event_base *base,
+ 	sigset_t	  set, oldset;
+ 	struct client	 *c = NULL;
+ 	char		 *cause = NULL;
++    struct timeval	 tv = { .tv_sec = 3600 };
+ 
+ 	sigfillset(&set);
+ 	sigprocmask(SIG_BLOCK, &set, &oldset);
+@@ -216,7 +235,10 @@ server_start(struct tmuxproc *client, int flags, struct event_base *base,
+ 		free(cause);
+ 	}
+ 
+-	server_add_accept(0);
++	evtimer_set(&server_ev_tidy, server_tidy_event, NULL);
++    evtimer_add(&server_ev_tidy, &tv);
++
++    server_add_accept(0);
+ 	proc_loop(server_proc, server_loop);
+ 
+ 	job_kill_all();
